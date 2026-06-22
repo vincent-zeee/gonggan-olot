@@ -256,7 +256,13 @@ async function loadCompany(){
 /* ---------- 프로젝트 목록 ---------- */
 function renderProjects(){
   const list=$("#projectList");
-  if(!projects.length){ list.innerHTML=`<div class="empty">아직 프로젝트가 없어요. "+ 새 프로젝트"로 시작하세요.</div>`; return; }
+  if(!projects.length){
+    list.innerHTML=`<div class="empty">아직 프로젝트가 없어요.<br><br>
+      <button class="btn btn-primary" id="seedBtn">기존 8개 작업 한 번에 가져오기</button><br><br>
+      <span style="font-size:.8rem">또는 위 "+ 새 프로젝트"로 직접 추가하세요.</span></div>`;
+    $("#seedBtn")?.addEventListener("click", importSeed);
+    return;
+  }
   list.innerHTML="";
   projects.forEach((p,i)=>{
     const thumb = firstThumb(p);
@@ -269,7 +275,7 @@ function renderProjects(){
       ${thumb?`<img class="thumb" src="${thumb}">`:`<div class="thumb"></div>`}
       <div class="pinfo">
         <div class="pname">${esc(p.name||"(이름 없음)")}</div>
-        <div class="pmeta"><span class="pcat">${esc(p.category||"-")}</span>${esc(p.year||"")}${p.location?" · "+esc(p.location):""} · 슬라이드 ${p.slides?.length||0}장</div>
+        <div class="pmeta"><span class="pcat">${esc(p.category||"-")}</span>${esc(p.caption||"")} · 슬라이드 ${p.slides?.length||0}장</div>
       </div>
       <div class="pacts">
         <button class="btn btn-sm" data-edit><span class="label-txt">수정</span></button>
@@ -304,17 +310,14 @@ let draft=null; // 편집 중 프로젝트
 $("#newProjectBtn").addEventListener("click", ()=>openEditor(null));
 
 function openEditor(p){
-  draft = p ? JSON.parse(JSON.stringify(p)) : {name:"",year:"",category:CATEGORIES[0],location:"",slides:[],order:projects.length};
+  draft = p ? JSON.parse(JSON.stringify(p)) : {name:"",category:CATEGORIES[0],caption:"",slides:[],order:projects.length};
   const m=$("#editorMount");
   m.innerHTML=`
     <div class="editor">
       <h3>${p?"프로젝트 수정":"새 프로젝트"}</h3>
       <div class="field"><label>프로젝트 이름</label><input id="e_name" value="${esc(draft.name)}" placeholder="예: 울릉공항"></div>
-      <div class="grid2">
-        <div class="field"><label>연도</label><input id="e_year" value="${esc(draft.year)}" placeholder="2019"></div>
-        <div class="field"><label>카테고리</label><select id="e_cat">${CATEGORIES.map(c=>`<option ${c===draft.category?"selected":""}>${c}</option>`).join("")}</select></div>
-      </div>
-      <div class="field"><label>위치 / 분류 (캡션 끝에 붙어요)</label><input id="e_loc" value="${esc(draft.location)}" placeholder="예: 경북 경주 / 기술제안 T/K"><div class="hint">사이트엔 "연도 · 카테고리 · 위치" 형태로 표시돼요.</div></div>
+      <div class="field"><label>카테고리 (사이트 필터용)</label><select id="e_cat">${CATEGORIES.map(c=>`<option ${c===draft.category?"selected":""}>${c}</option>`).join("")}</select></div>
+      <div class="field"><label>캡션 (사진 아래 표시)</label><input id="e_caption" value="${esc(draft.caption)}" placeholder="2025 · 등대디자인 · 경북 경주"><div class="hint">보통 "연도 · 분류 · 위치" 형태로 써요.</div></div>
 
       <div class="slides-head">
         <span class="lbl">사진 (${draft.slides.length}장)</span>
@@ -409,11 +412,10 @@ function startBA(){
 
 async function saveProject(){
   draft.name=$("#e_name").value.trim();
-  draft.year=$("#e_year").value.trim();
   draft.category=$("#e_cat").value;
-  draft.location=$("#e_loc").value.trim();
+  draft.caption=$("#e_caption").value.trim();
   if(!draft.name){ toast("프로젝트 이름을 입력하세요"); return; }
-  const data={order:draft.order??projects.length, name:draft.name, year:draft.year, category:draft.category, location:draft.location, slides:draft.slides, updatedAt:serverTimestamp()};
+  const data={order:draft.order??projects.length, name:draft.name, category:draft.category, caption:draft.caption, slides:draft.slides, updatedAt:serverTimestamp()};
   try{
     if(draft.id) await updateDoc(doc(db,"projects",draft.id), data);
     else await addDoc(collection(db,"projects"), data);
@@ -433,6 +435,49 @@ $("#saveCompanyBtn").addEventListener("click", async ()=>{
   try{ await setDoc(doc(db,"settings","company"), data); toast("회사 정보를 저장했어요"); }
   catch(err){ toast("저장 실패: "+err.message); }
 });
+
+/* ---------- 기존 데이터 가져오기 (seed) ---------- */
+const SEED_PROJECTS = [
+  {order:0, name:"울릉공항", category:"경관계획", caption:"2019 · 경관계획 · 기술제안 T/K",
+   slides:[1,2,3,4,5,6].map(n=>({type:"single",url:`ulleung-airport-${n}.jpg`}))},
+  {order:1, name:"감포항 등대", category:"등대", caption:"2025 · 등대디자인 · 경북 경주",
+   slides:[{type:"single",url:"gampo-lighthouse.jpg"},...[2,3,4,5,6].map(n=>({type:"single",url:`gampo-lighthouse-${n}.jpg`}))]},
+  {order:2, name:"용인 능말 어린이공원", category:"조경", caption:"2025 · 조경설계 · 경기 용인",
+   slides:[{type:"single",url:"yongin-playground.jpg"},...[2,3,4,5,6].map(n=>({type:"single",url:`yongin-playground-${n}.jpg`}))]},
+  {order:3, name:"인천 아암 갯골수로", category:"경관계획", caption:"2025 · 경관계획 · 인천",
+   slides:[{type:"single",url:"incheon-waterway.jpg"},...[2,3,4,5,6].map(n=>({type:"single",url:`incheon-waterway-${n}.jpg`}))]},
+  {order:4, name:"고창–내장 고속도로 횡단교량", category:"경관심의", caption:"2024 · 경관심의 · 횡단교량",
+   slides:[
+     {type:"single",url:"gochang-cover.jpg"},
+     {type:"ba",before:"gochang-1-before.jpg",after:"gochang-1-after.jpg",label:"IC 진입부"},
+     {type:"ba",before:"gochang-2-before.jpg",after:"gochang-2-after.jpg",label:"진입부 2"},
+     {type:"ba",before:"gochang-3-before.jpg",after:"gochang-3-after.jpg",label:"진출부"},
+     {type:"ba",before:"gochang-4-before.jpg",after:"gochang-4-after.jpg",label:"내호남 상행"},
+     {type:"ba",before:"gochang-5-before.jpg",after:"gochang-5-after.jpg",label:"하부 1교"},
+     {type:"ba",before:"gochang-6-before.jpg",after:"gochang-6-after.jpg",label:"하부 2교"}
+   ]},
+  {order:5, name:"구로 온수 도시계획 시설 조감", category:"도시", caption:"2024 · 도시계획 · 서울",
+   slides:[{type:"single",url:"guro-onsu.jpg"},{type:"single",url:"guro-onsu-2.jpg"},{type:"single",url:"guro-onsu-3.jpg"}]},
+  {order:6, name:"진천 테크노폴리스 진입도로", category:"경관심의", caption:"2023 · 경관심의 · 충북 진천",
+   slides:[{type:"single",url:"jincheon-road.jpg"},...[2,3,4,5,6].map(n=>({type:"single",url:`jincheon-road-${n}.jpg`}))]},
+  {order:7, name:"필리핀 교량 제안 — Sunshine Bridge", category:"경관계획", caption:"2022 · 경관제안 · Philippines",
+   slides:[{type:"single",url:"philippines-bridge.jpg"},...[2,3,4,5,6].map(n=>({type:"single",url:`philippines-bridge-${n}.jpg`}))]}
+];
+const SEED_COMPANY = {name:"주식회사 공간오롯", ceo:"박현실", bizno:"170-81-00711", tel:"02-2643-3892", addr:"서울특별시 양천구 목동중앙남로 85, 지하층(목동)", email:"olot.com@kakao.com"};
+
+async function importSeed(){
+  if(!confirm("기존 8개 프로젝트와 회사 정보를 가져올까요?\n처음 한 번만 누르세요. (여러 번 누르면 중복 등록돼요.)")) return;
+  const btn=$("#seedBtn"); if(btn){ btn.disabled=true; btn.textContent="가져오는 중…"; }
+  try{
+    for(const p of SEED_PROJECTS){ await addDoc(collection(db,"projects"), {...p, updatedAt:serverTimestamp()}); }
+    await setDoc(doc(db,"settings","company"), {...SEED_COMPANY, updatedAt:serverTimestamp()});
+    toast("8개 프로젝트와 회사 정보를 가져왔어요");
+    await loadProjects(); await loadCompany();
+  }catch(err){
+    toast("가져오기 실패: "+err.message);
+    if(btn){ btn.disabled=false; btn.textContent="기존 8개 작업 한 번에 가져오기"; }
+  }
+}
 
 /* ---------- 이미지 압축 + 업로드 ---------- */
 async function compress(file, maxDim=2048, quality=0.88){
