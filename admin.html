@@ -81,6 +81,10 @@
   .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--sage-deep)}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .hint{font-size:.74rem;color:var(--muted);margin-top:5px}
+  .cap3{display:flex;align-items:center;gap:8px}
+  .cap3 input{flex:1;min-width:0}
+  .cap3 .dot{color:var(--muted);flex:none;font-weight:500}
+  .cap3 input:nth-child(1){flex:0 0 84px}
 
   /* 슬라이드 관리 */
   .slides-head{display:flex;align-items:center;justify-content:space-between;margin:8px 0 12px}
@@ -310,14 +314,26 @@ let draft=null; // 편집 중 프로젝트
 $("#newProjectBtn").addEventListener("click", ()=>openEditor(null));
 
 function openEditor(p){
-  draft = p ? JSON.parse(JSON.stringify(p)) : {name:"",category:CATEGORIES[0],caption:"",slides:[],order:projects.length};
+  draft = p ? JSON.parse(JSON.stringify(p)) : {name:"",category:CATEGORIES[0],caption:"",description:"",slides:[],order:projects.length};
+  const _cp=(draft.caption||"").split("·").map(s=>s.trim());
+  const cy=_cp[0]||"", cc=_cp[1]||"", cl=_cp.slice(2).join(" · ");
   const m=$("#editorMount");
   m.innerHTML=`
     <div class="editor">
       <h3>${p?"프로젝트 수정":"새 프로젝트"}</h3>
       <div class="field"><label>프로젝트 이름</label><input id="e_name" value="${esc(draft.name)}" placeholder="예: 울릉공항"></div>
       <div class="field"><label>카테고리 (사이트 필터용)</label><select id="e_cat">${CATEGORIES.map(c=>`<option ${c===draft.category?"selected":""}>${c}</option>`).join("")}</select></div>
-      <div class="field"><label>캡션 (사진 아래 표시)</label><input id="e_caption" value="${esc(draft.caption)}" placeholder="2025 · 등대디자인 · 경북 경주"><div class="hint">보통 "연도 · 분류 · 위치" 형태로 써요.</div></div>
+      <div class="field"><label>캡션 (사진 아래 표시)</label>
+        <div class="cap3">
+          <input id="e_year" value="${esc(cy)}" placeholder="2025">
+          <span class="dot">·</span>
+          <input id="e_capcat" value="${esc(cc)}" placeholder="등대디자인">
+          <span class="dot">·</span>
+          <input id="e_loc" value="${esc(cl)}" placeholder="경북 경주">
+        </div>
+        <div class="hint">→ <span id="capPreview"></span></div>
+      </div>
+      <div class="field"><label>프로젝트 설명 (제목 아래 표시 · 두어 문장)</label><textarea id="e_desc" rows="3" placeholder="예: 정읍 평야의 너른 결을 살려, 고속도로가 풍경을 가르지 않고 자연스레 스며들도록 진입부 경관을 계획했습니다.">${esc(draft.description||"")}</textarea></div>
 
       <div class="slides-head">
         <span class="lbl">사진 (${draft.slides.length}장)</span>
@@ -345,8 +361,12 @@ function openEditor(p){
   $("#addSingle").onclick=()=>$("#fileSingle").click();
   $("#addBA").onclick=startBA;
   $("#fileSingle").onchange=onSingleFiles;
+  ["e_year","e_capcat","e_loc"].forEach(id=>$("#"+id).addEventListener("input",updateCapPreview));
+  updateCapPreview();
   m.scrollIntoView({behavior:"smooth",block:"start"});
 }
+function capJoin(){ return [$("#e_year").value,$("#e_capcat").value,$("#e_loc").value].map(s=>s.trim()).filter(Boolean).join(" · "); }
+function updateCapPreview(){ const el=$("#capPreview"); if(el) el.textContent = capJoin() || "(비어 있음)"; }
 
 function renderSlides(){
   const list=$("#slideList");
@@ -413,9 +433,10 @@ function startBA(){
 async function saveProject(){
   draft.name=$("#e_name").value.trim();
   draft.category=$("#e_cat").value;
-  draft.caption=$("#e_caption").value.trim();
+  draft.caption=capJoin();
+  draft.description=$("#e_desc").value.trim();
   if(!draft.name){ toast("프로젝트 이름을 입력하세요"); return; }
-  const data={order:draft.order??projects.length, name:draft.name, category:draft.category, caption:draft.caption, slides:draft.slides, updatedAt:serverTimestamp()};
+  const data={order:draft.order??projects.length, name:draft.name, category:draft.category, caption:draft.caption, description:draft.description, slides:draft.slides, updatedAt:serverTimestamp()};
   try{
     if(draft.id) await updateDoc(doc(db,"projects",draft.id), data);
     else await addDoc(collection(db,"projects"), data);

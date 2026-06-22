@@ -103,18 +103,19 @@
   .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   .prow{height:calc(100vh - var(--hd));scroll-snap-align:center;display:flex;flex-direction:column;justify-content:center;gap:18px}
   .pr-img{display:flex;justify-content:center;align-items:center}
-  .gal{position:relative;height:62vh;aspect-ratio:16/9;max-width:100%;margin:0 auto;cursor:pointer}
+  .gal{position:relative;height:56vh;aspect-ratio:16/9;max-width:100%;margin:0 auto;cursor:pointer}
   .gal img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .6s ease}
   .gal img.show{opacity:1}
   .gal-dot{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:2}
   .gal-dot i{width:6px;height:6px;border-radius:50%;background:var(--line);transition:background .3s}
   .gal-dot i.on{background:var(--sage-deep)}
   .gal-count{position:absolute;top:12px;right:14px;z-index:3;font-family:var(--sans);font-weight:300;font-size:.74rem;letter-spacing:.1em;color:#fff;background:rgba(16,18,13,.46);padding:4px 11px;border-radius:999px;backdrop-filter:blur(4px)}
-  .pr-head{display:flex;justify-content:space-between;align-items:baseline;gap:24px;border-top:1px solid var(--line);padding-top:16px}
+  .pr-head{display:flex;justify-content:space-between;align-items:baseline;gap:24px;border-bottom:1px solid var(--line);padding-bottom:14px}
   .pr-left{display:flex;align-items:baseline;gap:18px}
   .pr-num{font-family:var(--sans);font-weight:300;font-size:.86rem;letter-spacing:.16em;color:var(--sage-deep)}
   .pr-name{font-family:var(--serif);font-weight:500;font-size:clamp(1.15rem,2vw,1.55rem);color:var(--ink);line-height:1.4}
   .pr-cap{font-family:var(--sans);font-weight:300;font-size:.82rem;letter-spacing:.04em;color:var(--muted);white-space:nowrap}
+  .pr-desc{font-family:var(--sans);font-weight:300;font-size:.95rem;line-height:1.75;color:var(--ink-soft);max-width:52em;margin:0 auto;text-align:center}
 
   /* 소개 — 좌우 바닥 정렬, 이미지 하단 크롭, 한 화면 */
   .about-stage{height:calc(100vh - var(--hd));display:flex;flex-direction:column;justify-content:center;padding:30px 0;overflow:hidden}
@@ -156,7 +157,7 @@
   .foot .fmeta{font-family:var(--sans);font-weight:300;font-size:.8rem;letter-spacing:.03em;color:var(--muted);line-height:1.9;text-align:right}
 
   /* before/after 슬라이더 (경관심의) */
-  .ba{position:relative;height:62vh;aspect-ratio:16/9;max-width:100%;margin:0 auto;display:flex;flex-direction:column}
+  .ba{position:relative;height:56vh;aspect-ratio:16/9;max-width:100%;margin:0 auto;display:flex;flex-direction:column}
   .ba-stage{position:relative;flex:1;overflow:hidden;cursor:ew-resize;-webkit-user-select:none;user-select:none;background:var(--mist);touch-action:pan-y}
   .ba-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
   .ba-before{z-index:2;clip-path:inset(0 50% 0 0)}
@@ -457,14 +458,19 @@
   /* ===== helper ===== */
   function firstImg(p){ const s=(p.slides||[])[0]; if(!s) return ''; return s.type==='ba'?s.after:s.url; }
   function esc(s){ return (s??'').toString().replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m])); }
+  function getYear(p){ const m=(p.caption||'').match(/\d{4}/); return m?+m[0]:0; }
 
-  /* ===== 프로젝트 목록 렌더 ===== */
+  /* ===== 프로젝트 목록 렌더 (최신 연도 우선) ===== */
   function renderProjects(projects){
+    const sorted=[...projects].sort((a,b)=> getYear(b)-getYear(a) || (a.order||0)-(b.order||0));
     const plist=document.getElementById('plist'); plist.innerHTML='';
-    projects.forEach((p,i)=>{
+    sorted.forEach((p,i)=>{
       const num=String(i+1).padStart(2,'0');
       const hasBA=(p.slides||[]).some(s=>s.type==='ba');
       const art=document.createElement('article'); art.className='prow'; art.dataset.cat=p.category||'';
+      const head=`<div class="pr-head"><div class="pr-left"><span class="pr-num">${num}</span>`
+        +`<span class="pr-name">${esc(p.name)}</span></div>`
+        +`<span class="pr-cap">${esc(p.caption||'')}</span></div>`;
       let imgHtml;
       if(hasBA){
         imgHtml=`<div class="pr-img"><div class="ba"><div class="ba-stage">`
@@ -479,10 +485,8 @@
         const imgs=(p.slides||[]).map((s,k)=>`<img class="${k===0?'show':''}" src="${s.url}" alt="">`).join('');
         imgHtml=`<div class="pr-img"><div class="gal">${imgs}</div></div>`;
       }
-      art.innerHTML=imgHtml
-        +`<div class="pr-head"><div class="pr-left"><span class="pr-num">${num}</span>`
-        +`<span class="pr-name">${esc(p.name)}</span></div>`
-        +`<span class="pr-cap">${esc(p.caption||'')}</span></div>`;
+      const desc = p.description ? `<div class="pr-desc">${esc(p.description)}</div>` : '';
+      art.innerHTML=head+imgHtml+desc;
       plist.appendChild(art);
       if(hasBA) initBA(art.querySelector('.ba'), p.slides);
       else initGal(art.querySelector('.gal'));
