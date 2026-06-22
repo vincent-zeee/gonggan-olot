@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>공간;오롯 — Environmental Design</title>
+<meta name="description" content="켜켜이 쌓여 만들어진 공간, 그 공간을 오롯이 드러냅니다. 주식회사 공간오롯 환경디자인.">
+<meta name="theme-color" content="#FAFAF7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#191B16" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12.5' fill='none' stroke='%235E6A4E' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3.6' fill='%235E6A4E'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600&family=Noto+Sans+KR:wght@200;300;400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAFAF7; --paper-2:#F3F4EE;
+    --ink:#23271F; --ink-soft:#4B5043; --muted:#8A8D80;
+    --sage:#93A081; --sage-deep:#5E6A4E; --mist:#E7E9E0; --line:#DEDFD6;
+    --dim:#9BA093; --key:#273021;
+    --serif:'Noto Serif KR', serif; --sans:'Noto Sans KR', sans-serif;
+    --hd:78px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#191B16; --paper-2:#21241D;
+      --ink:#E8EAE0; --ink-soft:#B2B6AA; --muted:#797D70;
+      --sage:#9FAE86; --sage-deep:#B0C098; --mist:#2B2E25; --line:#34372D;
+      --dim:#565B4F; --key:#E6ECD8;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--serif);background:var(--paper);color:var(--ink);line-height:1.9;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  ::selection{background:var(--sage);color:#fff}
+  a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--sage-deep);outline-offset:3px;border-radius:2px}
+  @keyframes fadeList{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @keyframes viewIn{from{opacity:0}to{opacity:1}}
+  img{display:block}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px}
+  .sans{font-family:var(--sans);font-weight:300}
+  .eyebrow{font-family:var(--sans);font-weight:300;font-size:.72rem;letter-spacing:.34em;text-transform:uppercase;color:var(--sage-deep)}
+
+  /* 헤더 — 좌우 끝 고정 */
+  header{position:sticky;top:0;z-index:50;background:color-mix(in srgb, var(--paper) 84%, transparent);backdrop-filter:saturate(120%) blur(10px);border-bottom:1px solid transparent;transition:border-color .4s}
+  header.scrolled{border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:var(--hd);padding:0 42px}
+  .brand{font-family:var(--serif);font-weight:500;font-size:1.32rem;letter-spacing:.04em;color:var(--ink);text-decoration:none;background:none;border:none;cursor:pointer}
+  .brand span{color:var(--sage-deep)}
+  .menu{display:flex;gap:36px;align-items:center}
+  .menu a{font-family:var(--sans);font-weight:300;font-size:.92rem;letter-spacing:.06em;color:var(--ink-soft);text-decoration:none;position:relative;padding:4px 0;cursor:pointer}
+  .menu a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--sage-deep);transition:width .35s}
+  .menu a:hover::after,.menu a.current::after{width:100%}
+  .menu a.current{color:var(--ink)}
+  .nav-toggle{display:none;background:none;border:none;cursor:pointer;width:30px;height:24px;position:relative}
+  .nav-toggle span{position:absolute;left:0;width:100%;height:1.5px;background:var(--ink);transition:.3s}
+  .nav-toggle span:nth-child(1){top:3px}.nav-toggle span:nth-child(2){top:11px}.nav-toggle span:nth-child(3){top:19px}
+
+  .view{display:none}
+  .view.active{display:block;animation:viewIn .5s ease both}
+  .sec-head{display:flex;gap:16px;align-items:baseline;margin-bottom:32px}
+  .sec-head .idx{font-family:var(--sans);font-weight:300;font-size:.8rem;letter-spacing:.2em;color:var(--sage-deep)}
+  .sec-head h2{font-family:var(--serif);font-weight:500;font-size:1.5rem;letter-spacing:.06em;color:var(--ink)}
+  .back{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-weight:300;font-size:.84rem;letter-spacing:.06em;color:var(--muted);background:none;border:none;cursor:pointer}
+  .back:hover{color:var(--ink)}
+
+  /* 홈 — 한 화면 + 하단 사업자정보 오버레이 */
+  .home-hero{position:relative;height:calc(100vh - var(--hd));min-height:480px;overflow:hidden;cursor:pointer}
+  .home-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .home-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(16,18,13,.78) 0%,rgba(16,18,13,.12) 52%,rgba(16,18,13,.32) 100%)}
+  .hero-copy{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:0 42px 92px}
+  .hero-copy .eyebrow{display:block;margin-bottom:24px;color:rgba(255,255,255,.8)}
+  .hero-copy h1{font-family:var(--serif);font-weight:400;font-size:clamp(1.9rem,4.4vw,3.3rem);line-height:1.58;letter-spacing:-.01em;color:rgba(255,255,255,.66);max-width:18em;text-shadow:0 1px 30px rgba(0,0,0,.3)}
+  .hero-copy h1 em{font-style:normal;font-weight:600;color:#fff}
+  .hero-enter{margin-top:26px;font-family:var(--sans);font-weight:300;font-size:.86rem;letter-spacing:.16em;color:rgba(255,255,255,.85);display:inline-flex;align-items:center;gap:10px}
+  .hero-enter .ln{width:34px;height:1px;background:rgba(255,255,255,.65);transition:width .4s}
+  .home-hero:hover .hero-enter .ln{width:56px}
+  .hero-foot{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:0 42px 20px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-family:var(--sans);font-weight:300;font-size:.72rem;letter-spacing:.04em;color:rgba(255,255,255,.58)}
+
+  /* 카테고리 — 화면 꽉, 큰 번호 + 그린 그레이딩 */
+  .cats{display:flex;width:100%;height:calc(100vh - var(--hd));min-height:460px}
+  .cat{flex:1 1 0;position:relative;overflow:hidden;cursor:pointer;border-left:1px solid var(--paper);transition:flex-grow .6s cubic-bezier(.4,0,.2,1)}
+  .cat:first-child{border-left:none}
+  .cat img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.8);transition:transform 1.2s cubic-bezier(.2,.7,.2,1),filter .5s}
+  .cat .grade{position:absolute;inset:0;background:#3D4A31;mix-blend-mode:color;opacity:.62;transition:opacity .5s}
+  .cat::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(16,18,13,.66),rgba(16,18,13,.06) 58%,rgba(16,18,13,.24))}
+  .cat:hover{flex-grow:1.7}
+  .cat:hover img{transform:scale(1.06);filter:saturate(1)}
+  .cat:hover .grade{opacity:.2}
+  .cat-num{position:absolute;top:-16px;left:12px;z-index:2;font-family:var(--sans);font-weight:900;font-size:clamp(3.6rem,6.2vw,6.4rem);line-height:1;letter-spacing:-.03em;color:rgba(255,255,255,.55)}
+  .cat-label{position:absolute;left:22px;right:16px;bottom:30px;z-index:2}
+  .cat-en{display:block;font-family:var(--sans);font-weight:300;font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.72);margin-bottom:8px}
+  .cat-name{font-family:var(--serif);font-weight:500;font-size:clamp(1.05rem,1.5vw,1.4rem);color:#fff;line-height:1.32}
+  .cat-go{margin-top:11px;font-family:var(--sans);font-weight:300;font-size:.74rem;letter-spacing:.12em;color:rgba(255,255,255,0);transition:color .4s;white-space:nowrap}
+  .cat:hover .cat-go{color:rgba(255,255,255,.9)}
+
+  /* 프로젝트 — 자체 스크롤 + mandatory 스냅(가운데) */
+  #view-projects.active{height:calc(100vh - var(--hd));overflow-y:auto;scroll-snap-type:y mandatory;scroll-padding-top:64px;-webkit-overflow-scrolling:touch}
+  .proj-top{position:sticky;top:0;z-index:6;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px)}
+  .proj-top .wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding-top:14px;padding-bottom:14px}
+  .filters{display:flex;flex-wrap:wrap;gap:9px}
+  .chip{font-family:var(--sans);font-weight:300;font-size:.84rem;letter-spacing:.04em;color:var(--ink-soft);background:none;border:1px solid var(--line);border-radius:999px;padding:7px 17px;cursor:pointer;transition:.25s}
+  .chip:hover{border-color:var(--sage-deep);color:var(--ink)}
+  .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .prow{height:calc(100vh - var(--hd));scroll-snap-align:center;display:flex;flex-direction:column;justify-content:center;gap:18px}
+  .pr-img{display:flex;justify-content:center;align-items:center}
+  .gal{position:relative;height:62vh;aspect-ratio:16/9;max-width:100%;margin:0 auto;cursor:pointer}
+  .gal img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .6s ease}
+  .gal img.show{opacity:1}
+  .gal-dot{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:2}
+  .gal-dot i{width:6px;height:6px;border-radius:50%;background:var(--line);transition:background .3s}
+  .gal-dot i.on{background:var(--sage-deep)}
+  .gal-count{position:absolute;top:12px;right:14px;z-index:3;font-family:var(--sans);font-weight:300;font-size:.74rem;letter-spacing:.1em;color:#fff;background:rgba(16,18,13,.46);padding:4px 11px;border-radius:999px;backdrop-filter:blur(4px)}
+  .pr-head{display:flex;justify-content:space-between;align-items:baseline;gap:24px;border-top:1px solid var(--line);padding-top:16px}
+  .pr-left{display:flex;align-items:baseline;gap:18px}
+  .pr-num{font-family:var(--sans);font-weight:300;font-size:.86rem;letter-spacing:.16em;color:var(--sage-deep)}
+  .pr-name{font-family:var(--serif);font-weight:500;font-size:clamp(1.15rem,2vw,1.55rem);color:var(--ink);line-height:1.4}
+  .pr-cap{font-family:var(--sans);font-weight:300;font-size:.82rem;letter-spacing:.04em;color:var(--muted);white-space:nowrap}
+
+  /* 소개 — 좌우 바닥 정렬, 이미지 하단 크롭, 한 화면 */
+  .about-stage{height:calc(100vh - var(--hd));display:flex;flex-direction:column;justify-content:center;padding:30px 0;overflow:hidden}
+  .about{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:stretch;flex:1;min-height:0}
+  .about-left{display:flex;flex-direction:column;min-height:0}
+  .about .statement{font-family:var(--serif);font-weight:400;font-size:clamp(1.25rem,2.4vw,1.9rem);line-height:1.7;letter-spacing:-.005em;color:var(--dim);margin-bottom:26px;flex:0 0 auto}
+  .about .statement em{font-style:normal;font-weight:600;color:var(--key)}
+  .about-img{position:relative;flex:1 1 auto;min-height:0;overflow:hidden;background:var(--mist)}
+  .about-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;opacity:0;transition:opacity 1.3s ease}
+  .about-img img.on{opacity:1}
+  .about-right{display:flex;flex-direction:column;min-height:0}
+  .about-right p{font-size:1.02rem;color:var(--ink-soft);margin-bottom:16px;max-width:34em}
+  .services{list-style:none;margin-top:20px;border-top:1px solid var(--line)}
+  .services li{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);cursor:pointer;transition:padding-left .3s,color .3s}
+  .services li:hover{padding-left:10px}
+  .services li:hover .ko{color:var(--sage-deep)}
+  .services .ko{font-family:var(--serif);font-weight:400;font-size:1.02rem;color:var(--ink);transition:color .3s}
+  .services .en{font-family:var(--sans);font-weight:300;font-size:.74rem;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+  .dl{align-self:flex-start;margin-top:22px;display:inline-flex;align-items:center;gap:9px;font-family:var(--sans);font-weight:300;font-size:.84rem;letter-spacing:.06em;color:var(--ink);text-decoration:none;padding:11px 22px;border:1px solid var(--line);transition:.3s}
+  .dl:hover{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+
+  /* 연락처 */
+  .contact-inner{display:grid;grid-template-columns:1.1fr 1fr;gap:56px;align-items:end}
+  .contact .lead{font-family:var(--serif);font-weight:400;font-size:clamp(1.5rem,3vw,2.2rem);line-height:1.7;color:var(--ink)}
+  .contact .lead em{font-style:normal;color:var(--sage-deep)}
+  .cinfo{list-style:none}
+  .cinfo li{padding:16px 0;border-top:1px solid var(--line);display:flex;gap:24px;align-items:baseline}
+  .cinfo li:last-child{border-bottom:1px solid var(--line)}
+  .cinfo .lbl{font-family:var(--sans);font-weight:300;font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;color:var(--sage-deep);min-width:84px}
+  .cinfo .val{font-family:var(--serif);font-size:1.02rem;color:var(--ink);text-decoration:none}
+  a.val:hover{color:var(--sage-deep)}
+  .cta{display:inline-block;margin-top:34px;font-family:var(--sans);font-weight:300;font-size:.92rem;letter-spacing:.1em;color:var(--ink);text-decoration:none;padding:15px 38px;border:1px solid var(--ink);transition:.35s}
+  .cta:hover{background:var(--ink);color:var(--paper)}
+  #view-contact{padding:90px 0 0}
+  footer{padding:48px 0 56px;border-top:1px solid var(--line);margin-top:70px}
+  .foot{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px}
+  .foot .fbrand{font-family:var(--serif);font-weight:500;font-size:1.1rem;letter-spacing:.04em}
+  .foot .fbrand span{color:var(--sage-deep)}
+  .foot .fmeta{font-family:var(--sans);font-weight:300;font-size:.8rem;letter-spacing:.03em;color:var(--muted);line-height:1.9;text-align:right}
+
+  /* before/after 슬라이더 (경관심의) */
+  .ba{position:relative;height:62vh;aspect-ratio:16/9;max-width:100%;margin:0 auto;display:flex;flex-direction:column}
+  .ba-stage{position:relative;flex:1;overflow:hidden;cursor:ew-resize;-webkit-user-select:none;user-select:none;background:var(--mist);touch-action:pan-y}
+  .ba-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+  .ba-before{z-index:2;clip-path:inset(0 50% 0 0)}
+  .ba-divider{position:absolute;top:0;bottom:0;left:50%;width:2px;background:rgba(255,255,255,.95);box-shadow:0 0 10px rgba(0,0,0,.4);z-index:3;pointer-events:none}
+  .ba-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.96);box-shadow:0 2px 14px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--ink-soft);z-index:4;pointer-events:none}
+  .ba-tag{position:absolute;top:14px;z-index:3;font-family:var(--sans);font-weight:300;font-size:.72rem;letter-spacing:.14em;color:#fff;background:rgba(16,18,13,.52);padding:5px 13px;border-radius:999px;backdrop-filter:blur(4px)}
+  .ba-tag-l{left:14px}.ba-tag-r{right:14px}
+  .ba-cap{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:3;font-family:var(--sans);font-weight:300;font-size:.78rem;letter-spacing:.06em;color:#fff;background:rgba(16,18,13,.52);padding:6px 16px;border-radius:999px;backdrop-filter:blur(4px);white-space:nowrap}
+  .ba-nav{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:5;display:flex;gap:7px}
+  .ba-nav i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45);cursor:pointer;transition:background .3s}
+  .ba-nav i.on{background:#fff}
+  .ba-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:40px;height:40px;border:none;border-radius:50%;background:rgba(16,18,13,.42);color:#fff;font-size:1.2rem;line-height:1;cursor:pointer;backdrop-filter:blur(4px);transition:background .3s}
+  .ba-arrow:hover{background:rgba(16,18,13,.72)}
+  .ba-prev{left:10px}.ba-next{right:10px}
+  .ba.single .ba-before,.ba.single .ba-divider,.ba.single .ba-handle,.ba.single .ba-tag{display:none}
+
+  @media(max-width:860px){
+    .nav{padding:0 22px}
+    .menu{position:fixed;inset:var(--hd) 0 auto 0;flex-direction:column;gap:0;background:var(--paper);border-bottom:1px solid var(--line);max-height:0;overflow:hidden;transition:max-height .4s}
+    .menu.open{max-height:280px}
+    .menu a{padding:18px 22px;width:100%;border-top:1px solid var(--line)}
+    .nav-toggle{display:block}
+    .hero-copy{padding:0 22px 86px}
+    .hero-foot{padding:0 22px 16px;font-size:.66rem}
+    .cats{flex-direction:column;height:auto;min-height:0}
+    .cat{flex:none;height:30vh;min-height:170px;border-left:none;border-top:1px solid var(--paper)}
+    .cat:first-child{border-top:none}
+    .cat:hover{flex-grow:0}
+    .cat-go{color:rgba(255,255,255,.85)}
+    #view-projects.active{height:auto;overflow:visible;scroll-snap-type:none}
+    .prow{height:auto;padding:30px 0;gap:14px}
+    .gal{height:auto;aspect-ratio:16/9}
+    .ba{height:auto}
+    .about-stage{height:auto;padding:24px 0;overflow:visible}
+    .about{grid-template-columns:1fr;gap:30px;flex:none}
+    .about-img{flex:none;aspect-ratio:4/3}
+    .contact-inner{grid-template-columns:1fr;gap:40px;align-items:start}
+  }
+  @media(max-width:520px){
+    .wrap{padding:0 22px}
+    .pr-head{flex-direction:column;gap:6px}
+    .pr-cap{white-space:normal}
+    .foot{flex-direction:column;align-items:flex-start}
+    .foot .fmeta{text-align:left}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{scroll-behavior:auto!important}
+    #view-projects.active{scroll-snap-type:none}
+    .view.active{animation:none}
+    .pr-img img,.cat img,.cat,.hero-enter .ln,.about-img img{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<header id="hdr">
+  <div class="nav">
+    <button class="brand" data-view="home">공간<span>;오롯</span></button>
+    <nav class="menu" id="menu">
+      <a data-view="about">소개</a>
+      <a data-view="categories">프로젝트</a>
+      <a data-view="contact">연락처</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="메뉴" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main>
+  <!-- 홈 -->
+  <section class="view" id="view-home" style="padding:0">
+    <div class="home-hero" id="homeHero" role="button" tabindex="0" aria-label="프로젝트 보기">
+      <img src="ulleung-airport-1.jpg" alt="울릉공항 조감 — 바다 위 활주로">
+      <div class="hero-copy">
+        <span class="eyebrow">Environmental Design Studio</span>
+        <h1>켜켜이 쌓여 만들어진 공간,<br>그 공간을 <em>오롯이</em> 드러냅니다.</h1>
+        <span class="hero-enter sans">프로젝트 보기 <span class="ln"></span></span>
+      </div>
+      <div class="hero-foot">
+        <span>주식회사 공간오롯 · 사업자등록번호 170-81-00711</span>
+        <span>© 2026 gonggan;olot</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 카테고리 -->
+  <section class="view" id="view-categories" style="padding:0">
+    <div class="cats">
+      <div class="cat" data-go="경관계획" role="button" tabindex="0" aria-label="경관계획 프로젝트 보기">
+        <img src="incheon-waterway.jpg" alt="경관계획"><div class="grade"></div>
+        <span class="cat-num">01</span>
+        <div class="cat-label"><span class="cat-en">Landscape Planning</span><div class="cat-name">경관계획</div><div class="cat-go">프로젝트 보기 →</div></div>
+      </div>
+      <div class="cat" data-go="경관심의" role="button" tabindex="0" aria-label="경관심의 프로젝트 보기">
+        <img src="gochang-1-after.jpg" alt="경관심의"><div class="grade"></div>
+        <span class="cat-num">02</span>
+        <div class="cat-label"><span class="cat-en">Design Review</span><div class="cat-name">경관심의</div><div class="cat-go">프로젝트 보기 →</div></div>
+      </div>
+      <div class="cat" data-go="등대" role="button" tabindex="0" aria-label="등대디자인 프로젝트 보기">
+        <img src="gampo-lighthouse.jpg" alt="등대디자인"><div class="grade"></div>
+        <span class="cat-num">03</span>
+        <div class="cat-label"><span class="cat-en">Lighthouse</span><div class="cat-name">등대디자인</div><div class="cat-go">프로젝트 보기 →</div></div>
+      </div>
+      <div class="cat" data-go="조경" role="button" tabindex="0" aria-label="조경설계 프로젝트 보기">
+        <img src="yongin-playground.jpg" alt="조경설계"><div class="grade"></div>
+        <span class="cat-num">04</span>
+        <div class="cat-label"><span class="cat-en">Landscape Design</span><div class="cat-name">조경설계</div><div class="cat-go">프로젝트 보기 →</div></div>
+      </div>
+      <div class="cat" data-go="도시" role="button" tabindex="0" aria-label="도시·단지계획 프로젝트 보기">
+        <img src="guro-onsu.jpg" alt="도시·단지계획"><div class="grade"></div>
+        <span class="cat-num">05</span>
+        <div class="cat-label"><span class="cat-en">Urban / District</span><div class="cat-name">도시·단지</div><div class="cat-go">프로젝트 보기 →</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 프로젝트 -->
+  <section class="view" id="view-projects" style="padding:0">
+    <div class="proj-top">
+      <div class="wrap">
+        <button class="back" data-view="categories">← 카테고리</button>
+        <div class="filters" id="filters">
+          <button class="chip on" data-cat="전체">전체</button>
+          <button class="chip" data-cat="경관계획">경관계획</button>
+          <button class="chip" data-cat="경관심의">경관심의</button>
+          <button class="chip" data-cat="등대">등대디자인</button>
+          <button class="chip" data-cat="조경">조경설계</button>
+          <button class="chip" data-cat="도시">도시·단지</button>
+        </div>
+      </div>
+    </div>
+    <div class="wrap"><div class="plist" id="plist">
+      <article class="prow" data-cat="경관계획">
+        <div class="pr-img"><div class="gal"><img class="show" src="ulleung-airport-1.jpg" alt="울릉공항 전체조감"><img src="ulleung-airport-2.jpg" alt=""><img src="ulleung-airport-3.jpg" alt=""><img src="ulleung-airport-4.jpg" alt=""><img src="ulleung-airport-5.jpg" alt=""><img src="ulleung-airport-6.jpg" alt=""></div></div>
+        <div class="pr-head"><div class="pr-left"><span class="pr-num">01</span><span class="pr-name">울릉공항</span></div><span class="pr-cap">2019 · 경관계획 · 기술제안 T/K</span></div>
+      </article>
+      <article class="prow" data-cat="등대">
+        <div class="pr-img"><div class="gal"><img class="show" src="gampo-lighthouse.jpg" alt="감포항 등대"><img src="gampo-lighthouse-2.jpg" alt=""><img src="gampo-lighthouse-3.jpg" alt=""><img src="gampo-lighthouse-4.jpg" alt=""><img src="gampo-lighthouse-5.jpg" alt=""><img src="gampo-lighthouse-6.jpg" alt=""></div></div>
+        <div class="pr-head"><div class="pr-left"><span class="pr-num">02</span><span class="pr-name">감포항 등대</span></div><span class="pr-cap">2025 · 등대디자인 · 경북 경주</span></div>
+      </article>
+      <article class="prow" data-cat="조경">
+        <div class="pr-img"><div class="gal"><img class="show" src="yongin-playground.jpg" alt="용인 능말 어린이공원"><img src="yongin-playground-2.jpg" alt=""><img src="yongin-playground-3.jpg" alt=""><img src="yongin-playground-4.jpg" alt=""><img src="yongin-playground-5.jpg" alt=""><img src="yongin-playground-6.jpg" alt=""></div></div>
+        <div class="pr-head"><div class="pr-left"><span class="pr-num">03</span><span class="pr-name">용인 능말 어린이공원</span></div><span class="pr-cap">2025 · 조경설계 · 경기 용인</span></div>
+      </article>
+      <article class="prow" data-cat="경관계획">
+        <div class="pr-img"><div class="gal"><img class="show" src="incheon-waterway.jpg" alt="인천 아암 갯골수로"><img src="incheon-waterway-2.jpg" alt=""><img src="incheon-waterway-3.jpg" alt=""><img src="incheon-waterway-4.jpg" alt=""><img src="incheon-waterway-5.jpg" alt=""><img src="incheon-waterway-6.jpg" alt=""></div></div>
+        <div class="pr-head"><div class="pr-left"><span class="pr-num">04</span><span class="pr-name">인천 아암 갯골수로</span></div><span class="pr-cap">2025 · 경관계획 · 인천</span></div>
+      </article>
+      <article class="prow" data-cat="경관심의">
+        <div class="pr-img"><div class="ba" id="gochangBA">
+          <div class="ba-stage">
+            <img class="ba-after" alt="제안">
+            <img class="ba-before" alt="현황">
+            <span class="ba-tag ba-tag-l">현황</span>
+            <span class="ba-tag ba-tag-r">제안</span>
+            <div class="ba-divider"></div>
+            <div class="ba-handle">↔</div>
+            <button class="ba-arrow ba-prev" aria-label="이전">‹</button>
+            <button class="ba-arrow ba-next" aria-label="다음">›</button>
+            <div class="ba-nav"></div>
+            <span class="ba-cap"></span>
+          </div>
+        </div></div>
+        <div class="pr-head"><div class="pr-left"><span class="pr-num">05</span><span class="pr-name">고창–내장 고속도로 횡단교량</span></div><span class="pr-cap">2024 · 경관심의 · 횡단교량</span></div>
+      </article>
+      <article class="prow" data-cat="도시">
+        <div class="pr-img"><div class="gal"><img class="show" src="guro-onsu.jpg" alt="구로 온수 도시계획 시설 조감"><img src="guro-onsu-2.jpg" alt=""><img src="guro-onsu-3.jpg" alt=""></div></div>
+        <div class="pr-head"><div class="pr-left"><span class="pr-num">06</span><span class="pr-name">구로 온수 도시계획 시설 조감</span></div><span class="pr-cap">2024 · 도시계획 · 서울</span></div>
+      </article>
+      <article class="prow" data-cat="경관심의">
+        <div class="pr-img"><div class="gal"><img class="show" src="jincheon-road.jpg" alt="진천 테크노폴리스 진입도로"><img src="jincheon-road-2.jpg" alt=""><img src="jincheon-road-3.jpg" alt=""><img src="jincheon-road-4.jpg" alt=""><img src="jincheon-road-5.jpg" alt=""><img src="jincheon-road-6.jpg" alt=""></div></div>
+        <div class="pr-head"><div class="pr-left"><span class="pr-num">07</span><span class="pr-name">진천 테크노폴리스 진입도로</span></div><span class="pr-cap">2023 · 경관심의 · 충북 진천</span></div>
+      </article>
+      <article class="prow" data-cat="경관계획">
+        <div class="pr-img"><div class="gal"><img class="show" src="philippines-bridge.jpg" alt="필리핀 교량 제안 Sunshine Bridge"><img src="philippines-bridge-2.jpg" alt=""><img src="philippines-bridge-3.jpg" alt=""><img src="philippines-bridge-4.jpg" alt=""><img src="philippines-bridge-5.jpg" alt=""><img src="philippines-bridge-6.jpg" alt=""></div></div>
+        <div class="pr-head"><div class="pr-left"><span class="pr-num">08</span><span class="pr-name">필리핀 교량 제안 — Sunshine Bridge</span></div><span class="pr-cap">2022 · 경관제안 · Philippines</span></div>
+      </article>
+    </div></div>
+  </section>
+
+  <!-- 소개 -->
+  <section class="view" id="view-about" style="padding:0">
+    <div class="wrap about-stage">
+      <div class="sec-head"><span class="idx">About</span><h2>소개</h2></div>
+      <div class="about">
+        <div class="about-left">
+          <p class="statement">켜켜이 쌓인 시간이 공간이 되고,<br>그 공간이 <em>오롯이</em> 자신을<br>드러낼 때까지.</p>
+          <div class="about-img" id="aboutSlides">
+            <img class="on" src="incheon-waterway.jpg" alt="">
+            <img src="guro-onsu.jpg" alt="">
+            <img src="yongin-playground.jpg" alt="">
+            <img src="gampo-lighthouse.jpg" alt="">
+          </div>
+        </div>
+        <div class="about-right">
+          <p>공간오롯은 땅이 품어온 시간과 결을 먼저 읽습니다. 지형, 식생, 빛과 바람의 길 — 그 자리가 가진 고유한 층위를 살펴, 덧대기보다 드러내는 방식으로 환경을 디자인합니다.</p>
+          <p>도로와 교량의 경관심의부터 도시·지구단위 계획, 조경설계와 등대디자인까지 — 스케일을 넘나들며 자연과 도시가 만나는 자리를 다듬어 왔습니다.</p>
+          <ul class="services" id="scope">
+            <li data-go="경관계획"><span class="ko">경관계획</span><span class="en">Landscape Planning</span></li>
+            <li data-go="경관심의"><span class="ko">경관심의</span><span class="en">Design Review</span></li>
+            <li data-go="등대"><span class="ko">등대디자인</span><span class="en">Lighthouse</span></li>
+            <li data-go="조경"><span class="ko">조경설계</span><span class="en">Landscape Design</span></li>
+            <li data-go="도시"><span class="ko">도시·단지계획</span><span class="en">Urban / District</span></li>
+          </ul>
+          <!-- 사업자등록증 파일을 같은 폴더에 business-license.pdf 로 넣으면 다운로드됩니다 -->
+          <a class="dl" href="business-license.pdf" download>사업자등록증 다운로드 ↓</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 연락처 -->
+  <section class="view contact" id="view-contact">
+    <div class="wrap">
+      <div class="sec-head"><span class="idx">Contact</span><h2>연락처</h2></div>
+      <div class="contact-inner">
+        <p class="lead">담아내고 싶은 공간이 있으신가요.<br>그 자리의 이야기부터 <em>함께</em> 시작합니다.</p>
+        <div>
+          <!-- 임시값 — 실제 연락처로 교체 -->
+          <ul class="cinfo">
+            <li><span class="lbl">Email</span><a class="val" href="mailto:olot.com@kakao.com">olot.com@kakao.com</a></li>
+            <li><span class="lbl">Tel</span><a class="val" href="tel:0226433892">02-2643-3892</a></li>
+            <li><span class="lbl">Office</span><span class="val">서울특별시 양천구 목동중앙남로 85, 지하층(목동)</span></li>
+          </ul>
+          <a class="cta" href="mailto:olot.com@kakao.com">프로젝트 문의하기</a>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="wrap foot">
+        <div class="fbrand">공간<span>;오롯</span></div>
+        <div class="fmeta">주식회사 공간오롯 · 대표 박현실<br>사업자등록번호 170-81-00711<br>서울특별시 양천구 목동중앙남로 85, 지하층(목동)<br>© 2026 gonggan;olot. All rights reserved.</div>
+      </div>
+    </footer>
+  </section>
+</main>
+
+<script>
+  const hdr=document.getElementById('hdr');
+  addEventListener('scroll',()=>hdr.classList.toggle('scrolled',window.scrollY>12),{passive:true});
+
+  const menu=document.getElementById('menu'), toggle=document.getElementById('navToggle');
+  toggle.addEventListener('click',()=>{const o=menu.classList.toggle('open');toggle.setAttribute('aria-expanded',o);});
+
+  const views=document.querySelectorAll('.view');
+  function showView(name,cat){
+    views.forEach(v=>v.classList.toggle('active',v.id==='view-'+name));
+    document.querySelectorAll('.menu [data-view]').forEach(a=>a.classList.toggle('current',a.dataset.view===name));
+    menu.classList.remove('open'); toggle.setAttribute('aria-expanded',false);
+    window.scrollTo(0,0);
+    if(name==='projects') applyFilter(cat||'전체');
+  }
+  function applyFilter(cat){
+    document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.cat===cat));
+    const list=document.getElementById('plist');
+    document.querySelectorAll('.prow').forEach(p=>{
+      const cats=(p.dataset.cat||'').split(' ');
+      p.style.display=(cat==='전체'||cats.includes(cat))?'':'none';
+    });
+    document.getElementById('view-projects').scrollTo(0,0);
+    list.style.animation='none'; void list.offsetWidth; list.style.animation='fadeList .4s ease both';
+  }
+  document.querySelectorAll('[data-view]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();showView(a.dataset.view);}));
+  const hero=document.getElementById('homeHero');
+  hero.addEventListener('click',()=>showView('categories'));
+  hero.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showView('categories');}});
+  document.querySelectorAll('.cat[data-go]').forEach(c=>{
+    const go=()=>showView('projects',c.dataset.go);
+    c.addEventListener('click',go);
+    c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});
+  });
+  document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>applyFilter(c.dataset.cat)));
+  document.querySelectorAll('.services [data-go]').forEach(el=>{
+    el.setAttribute('role','button'); el.setAttribute('tabindex','0');
+    const go=()=>showView('projects',el.dataset.go);
+    el.addEventListener('click',go);
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});
+  });
+
+  const slides=document.querySelectorAll('#aboutSlides img');
+  if(slides.length>1 && !matchMedia('(prefers-reduced-motion:reduce)').matches){
+    let si=0;
+    setInterval(()=>{slides[si].classList.remove('on');si=(si+1)%slides.length;slides[si].classList.add('on');},4200);
+  }
+
+  // 프로젝트 갤러리 — 클릭(모바일 탭)하면 다음 이미지. 1/N 카운터 + 닷
+  document.querySelectorAll('.gal').forEach(g=>{
+    const imgs=[...g.querySelectorAll('img')];
+    if(imgs.length<2) return;
+    const dots=document.createElement('div'); dots.className='gal-dot';
+    imgs.forEach((_,k)=>{const d=document.createElement('i'); if(k===0)d.classList.add('on'); dots.appendChild(d);});
+    g.appendChild(dots);
+    const count=document.createElement('div'); count.className='gal-count'; count.textContent='1 / '+imgs.length; g.appendChild(count);
+    let i=0;
+    const set=k=>{imgs[i].classList.remove('show');dots.children[i].classList.remove('on');i=k;imgs[i].classList.add('show');dots.children[i].classList.add('on');count.textContent=(i+1)+' / '+imgs.length;};
+    g.addEventListener('click',e=>{e.stopPropagation();set((i+1)%imgs.length);});
+  });
+
+  // before/after 슬라이더 (경관심의 — 고창)
+  (function(){
+    const ba=document.getElementById('gochangBA'); if(!ba) return;
+    const stage=ba.querySelector('.ba-stage');
+    const after=ba.querySelector('.ba-after'), before=ba.querySelector('.ba-before');
+    const divider=ba.querySelector('.ba-divider'), handle=ba.querySelector('.ba-handle');
+    const cap=ba.querySelector('.ba-cap'), nav=ba.querySelector('.ba-nav');
+    const slots=[
+      {type:'single', img:'gochang-cover.jpg', cap:'경관 컨셉 — 정읍 평야에 장단 맞춤'},
+      {type:'ba', before:'gochang-1-before.jpg', after:'gochang-1-after.jpg', cap:'IC 진입부'},
+      {type:'ba', before:'gochang-2-before.jpg', after:'gochang-2-after.jpg', cap:'IC 진입부 (2)'},
+      {type:'ba', before:'gochang-3-before.jpg', after:'gochang-3-after.jpg', cap:'IC 진출부'},
+      {type:'ba', before:'gochang-4-before.jpg', after:'gochang-4-after.jpg', cap:'내호남 상행'},
+      {type:'ba', before:'gochang-5-before.jpg', after:'gochang-5-after.jpg', cap:'하부 1교'},
+      {type:'ba', before:'gochang-6-before.jpg', after:'gochang-6-after.jpg', cap:'하부 2교'},
+    ];
+    let idx=0, drag=false;
+    slots.forEach((_,k)=>{const d=document.createElement('i'); if(k===0)d.classList.add('on'); d.addEventListener('click',e=>{e.stopPropagation();go(k);}); nav.appendChild(d);});
+    function setPos(p){p=Math.max(0,Math.min(100,p)); before.style.clipPath='inset(0 '+(100-p)+'% 0 0)'; divider.style.left=p+'%'; handle.style.left=p+'%';}
+    function go(k){
+      idx=(k+slots.length)%slots.length; const s=slots[idx];
+      [...nav.children].forEach((d,i)=>d.classList.toggle('on',i===idx));
+      cap.textContent=s.cap;
+      if(s.type==='single'){ba.classList.add('single'); after.src=s.img;}
+      else{ba.classList.remove('single'); after.src=s.after; before.src=s.before; setPos(50);}
+    }
+    function xpct(e){const r=stage.getBoundingClientRect(); const cx=e.touches?e.touches[0].clientX:e.clientX; return (cx-r.left)/r.width*100;}
+    stage.addEventListener('pointerdown',e=>{if(ba.classList.contains('single'))return; drag=true; setPos(xpct(e));});
+    addEventListener('pointermove',e=>{if(drag)setPos(xpct(e));});
+    addEventListener('pointerup',()=>drag=false);
+    ba.querySelector('.ba-prev').addEventListener('click',e=>{e.stopPropagation();go(idx-1);});
+    ba.querySelector('.ba-next').addEventListener('click',e=>{e.stopPropagation();go(idx+1);});
+    go(0);
+  })();
+
+  showView('home');
+</script>
+</body>
+</html>
