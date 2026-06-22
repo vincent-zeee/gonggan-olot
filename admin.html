@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>공간;오롯 — 관리자</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12.5' fill='none' stroke='%235E6A4E' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3.6' fill='%235E6A4E'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAFAF7; --paper-2:#F3F4EE; --card:#fff;
+    --ink:#23271F; --ink-soft:#4B5043; --muted:#8A8D80;
+    --sage:#93A081; --sage-deep:#5E6A4E; --mist:#E7E9E0; --line:#DEDFD6;
+    --danger:#B4534B; --ok:#5E6A4E;
+    --serif:'Noto Serif KR',serif; --sans:'Noto Sans KR',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--sans);font-weight:300;background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  button{font-family:var(--sans);cursor:pointer}
+  input,select,textarea{font-family:var(--sans)}
+  a{color:var(--sage-deep)}
+  .serif{font-family:var(--serif)}
+
+  /* 로그인 화면 */
+  .gate{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:24px;text-align:center}
+  .gate .mark{font-family:var(--serif);font-weight:500;font-size:1.8rem;letter-spacing:.04em}
+  .gate .mark span{color:var(--sage-deep)}
+  .gate p{color:var(--ink-soft);font-size:.96rem;max-width:22em}
+  .gbtn{display:inline-flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:13px 22px;font-size:.95rem;color:var(--ink);transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .gbtn:hover{border-color:var(--sage-deep);box-shadow:0 3px 12px rgba(0,0,0,.08)}
+  .gbtn svg{width:18px;height:18px}
+  .deny{color:var(--danger);font-size:.92rem}
+
+  /* 헤더 */
+  header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--paper) 90%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .hwrap{max-width:980px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .brand{font-family:var(--serif);font-weight:500;font-size:1.15rem;letter-spacing:.03em}
+  .brand span{color:var(--sage-deep)}
+  .brand small{font-family:var(--sans);font-weight:300;font-size:.7rem;letter-spacing:.18em;color:var(--muted);margin-left:8px;text-transform:uppercase}
+  .huser{display:flex;align-items:center;gap:12px;font-size:.82rem;color:var(--muted)}
+  .huser button{background:none;border:1px solid var(--line);border-radius:6px;padding:6px 12px;color:var(--ink-soft);font-size:.8rem}
+  .huser button:hover{border-color:var(--sage-deep);color:var(--ink)}
+
+  .wrap{max-width:980px;margin:0 auto;padding:24px 22px 80px}
+  .tabs{display:flex;gap:8px;margin-bottom:26px;border-bottom:1px solid var(--line)}
+  .tab{background:none;border:none;padding:11px 4px;margin-right:18px;font-size:.96rem;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab.on{color:var(--ink);border-bottom-color:var(--sage-deep);font-weight:500}
+
+  .row-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px}
+  .row-head h2{font-family:var(--serif);font-weight:500;font-size:1.25rem}
+  .btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:9px 16px;font-size:.88rem;color:var(--ink);transition:.2s}
+  .btn:hover{border-color:var(--sage-deep)}
+  .btn-primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .btn-primary:hover{background:var(--sage-deep);border-color:var(--sage-deep)}
+  .btn-danger{color:var(--danger);border-color:#E4CFCC}
+  .btn-danger:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+  .btn-sm{padding:6px 11px;font-size:.8rem}
+
+  /* 프로젝트 카드 */
+  .plist{display:flex;flex-direction:column;gap:10px}
+  .pcard{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:14px 16px;display:flex;align-items:center;gap:14px}
+  .pcard .thumb{width:78px;height:48px;border-radius:6px;object-fit:cover;background:var(--mist);flex:none}
+  .pcard .pinfo{flex:1;min-width:0}
+  .pcard .pname{font-family:var(--serif);font-weight:500;font-size:1.02rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pcard .pmeta{font-size:.78rem;color:var(--muted);margin-top:2px}
+  .pcard .pcat{display:inline-block;font-size:.72rem;color:var(--sage-deep);background:var(--mist);border-radius:999px;padding:2px 9px;margin-right:6px}
+  .pcard .pacts{display:flex;gap:6px;flex:none}
+  .ord{display:flex;flex-direction:column;gap:2px;flex:none}
+  .ord button{width:26px;height:22px;border:1px solid var(--line);background:#fff;border-radius:5px;font-size:.7rem;color:var(--ink-soft);line-height:1;padding:0}
+  .ord button:hover{border-color:var(--sage-deep)}
+  .ord button:disabled{opacity:.3;cursor:default}
+
+  /* 편집 패널 */
+  .editor{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:14px}
+  .editor h3{font-family:var(--serif);font-weight:500;font-size:1.1rem;margin-bottom:18px}
+  .field{margin-bottom:15px}
+  .field label{display:block;font-size:.8rem;color:var(--ink-soft);margin-bottom:6px;letter-spacing:.02em}
+  .field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem;color:var(--ink);background:#fff}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--sage-deep)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .hint{font-size:.74rem;color:var(--muted);margin-top:5px}
+
+  /* 슬라이드 관리 */
+  .slides-head{display:flex;align-items:center;justify-content:space-between;margin:8px 0 12px}
+  .slides-head .lbl{font-size:.8rem;color:var(--ink-soft)}
+  .add-menu{display:flex;gap:8px}
+  .slides{display:flex;flex-direction:column;gap:8px}
+  .slide{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:var(--paper-2)}
+  .slide .sthumb{width:62px;height:38px;border-radius:5px;object-fit:cover;background:var(--mist);flex:none}
+  .slide .sba{display:flex;gap:3px;flex:none}
+  .slide .sba img{width:38px;height:38px;border-radius:5px;object-fit:cover;background:var(--mist)}
+  .slide .stype{font-size:.72rem;color:#fff;background:var(--sage-deep);border-radius:999px;padding:2px 8px;flex:none}
+  .slide .stype.single{background:var(--muted)}
+  .slide .slabel{flex:1;font-size:.84rem;color:var(--ink-soft);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .slide .sacts{display:flex;gap:5px;flex:none}
+  .slide .sacts button{width:26px;height:24px;border:1px solid var(--line);background:#fff;border-radius:5px;font-size:.72rem;padding:0;color:var(--ink-soft)}
+
+  .editor-acts{display:flex;gap:9px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+  .spacer{flex:1}
+
+  /* 업로드 진행 */
+  .uploading{display:none;align-items:center;gap:9px;font-size:.84rem;color:var(--sage-deep);padding:10px 0}
+  .uploading.on{display:flex}
+  .spin{width:15px;height:15px;border:2px solid var(--mist);border-top-color:var(--sage-deep);border-radius:50%;animation:sp .7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  .empty{text-align:center;padding:50px 20px;color:var(--muted);font-size:.92rem}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:12px 22px;border-radius:9px;font-size:.88rem;opacity:0;transition:.3s;z-index:80;pointer-events:none}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  .hidden{display:none!important}
+  @media(max-width:560px){
+    .grid2{grid-template-columns:1fr}
+    .pcard .thumb{display:none}
+    .pcard .pacts .label-txt{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- 로그인 게이트 -->
+<div class="gate" id="gate">
+  <div class="mark">공간<span>;오롯</span></div>
+  <p>포트폴리오 관리자 페이지입니다.<br>등록된 관리자 계정으로 로그인하세요.</p>
+  <button class="gbtn" id="loginBtn">
+    <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.8-6.8C35.6 2.4 30.1 0 24 0 14.6 0 6.4 5.4 2.6 13.2l7.9 6.2C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-2.8-.4-4.1H24v7.4h12.7c-.3 2.1-1.6 5.2-4.6 7.3l7.1 5.5c4.3-3.9 6.9-9.7 6.9-16.1z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-2.9-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C1 16.5 0 20.1 0 24s1 7.5 2.6 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.1 0 11.3-2 15-5.5l-7.1-5.5c-2 1.3-4.6 2.3-7.9 2.3-6.3 0-11.6-4.1-13.5-9.9l-7.9 6.2C6.4 42.6 14.6 48 24 48z"/></svg>
+    Google로 로그인
+  </button>
+  <div class="deny hidden" id="denyMsg"></div>
+</div>
+
+<!-- 관리자 앱 -->
+<div class="hidden" id="app">
+  <header>
+    <div class="hwrap">
+      <div class="brand">공간<span>;오롯</span><small>Admin</small></div>
+      <div class="huser"><span id="userEmail"></span><button id="logoutBtn">로그아웃</button></div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="tabs">
+      <button class="tab on" data-tab="projects">프로젝트</button>
+      <button class="tab" data-tab="company">회사 정보</button>
+    </div>
+
+    <!-- 프로젝트 탭 -->
+    <section id="tab-projects">
+      <div class="row-head">
+        <h2>프로젝트 관리</h2>
+        <button class="btn btn-primary" id="newProjectBtn">+ 새 프로젝트</button>
+      </div>
+      <div id="editorMount"></div>
+      <div class="plist" id="projectList"></div>
+    </section>
+
+    <!-- 회사정보 탭 -->
+    <section id="tab-company" class="hidden">
+      <div class="row-head"><h2>회사 정보</h2></div>
+      <div class="editor">
+        <div class="grid2">
+          <div class="field"><label>상호</label><input id="c_name" placeholder="주식회사 공간오롯"></div>
+          <div class="field"><label>대표</label><input id="c_ceo" placeholder="박현실"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>사업자등록번호</label><input id="c_bizno" placeholder="170-81-00711"></div>
+          <div class="field"><label>전화</label><input id="c_tel" placeholder="02-2643-3892"></div>
+        </div>
+        <div class="field"><label>주소</label><input id="c_addr" placeholder="서울특별시 양천구 목동중앙남로 85, 지하층(목동)"></div>
+        <div class="field"><label>이메일</label><input id="c_email" placeholder="olot.com@kakao.com"></div>
+        <div class="editor-acts">
+          <div class="spacer"></div>
+          <button class="btn btn-primary" id="saveCompanyBtn">회사 정보 저장</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, query, orderBy, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL, deleteObject }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAPXPsQenfjIYC_GzfiGfwWYGa95NSwSR4",
+  authDomain: "gonggan-olot.firebaseapp.com",
+  projectId: "gonggan-olot",
+  storageBucket: "gonggan-olot.firebasestorage.app",
+  messagingSenderId: "902983142146",
+  appId: "1:902983142146:web:86f80bef5c6cd02680901b"
+};
+const ADMINS = ["vincent.zeee@gmail.com","pguss927@gmail.com"];
+const CATEGORIES = ["경관계획","경관심의","등대","조경","도시"];
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+const $ = s => document.querySelector(s);
+const gate=$("#gate"), appEl=$("#app");
+let projects = [];   // {id, order, name, year, category, location, slides:[]}
+
+/* ---------- 로그인 ---------- */
+$("#loginBtn").addEventListener("click", async ()=>{
+  try{ await signInWithPopup(auth, new GoogleAuthProvider()); }
+  catch(e){ toast("로그인이 취소되었어요"); }
+});
+$("#logoutBtn").addEventListener("click", ()=> signOut(auth));
+
+onAuthStateChanged(auth, user=>{
+  if(!user){ show(gate); hide(appEl); $("#denyMsg").classList.add("hidden"); return; }
+  if(!ADMINS.includes(user.email)){
+    $("#denyMsg").textContent = `${user.email} 계정은 편집 권한이 없어요. 등록된 관리자 계정으로 로그인해 주세요.`;
+    $("#denyMsg").classList.remove("hidden");
+    signOut(auth);
+    return;
+  }
+  $("#userEmail").textContent = user.email;
+  hide(gate); show(appEl);
+  loadAll();
+});
+
+/* ---------- 탭 ---------- */
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+  t.classList.add("on");
+  $("#tab-projects").classList.toggle("hidden", t.dataset.tab!=="projects");
+  $("#tab-company").classList.toggle("hidden", t.dataset.tab!=="company");
+}));
+
+/* ---------- 데이터 로드 ---------- */
+async function loadAll(){ await loadProjects(); await loadCompany(); }
+
+async function loadProjects(){
+  const snap = await getDocs(query(collection(db,"projects"), orderBy("order")));
+  projects = snap.docs.map(d=>({id:d.id, ...d.data()}));
+  renderProjects();
+}
+async function loadCompany(){
+  const d = await getDoc(doc(db,"settings","company"));
+  const c = d.exists()? d.data() : {};
+  $("#c_name").value=c.name||""; $("#c_ceo").value=c.ceo||"";
+  $("#c_bizno").value=c.bizno||""; $("#c_tel").value=c.tel||"";
+  $("#c_addr").value=c.addr||""; $("#c_email").value=c.email||"";
+}
+
+/* ---------- 프로젝트 목록 ---------- */
+function renderProjects(){
+  const list=$("#projectList");
+  if(!projects.length){ list.innerHTML=`<div class="empty">아직 프로젝트가 없어요. "+ 새 프로젝트"로 시작하세요.</div>`; return; }
+  list.innerHTML="";
+  projects.forEach((p,i)=>{
+    const thumb = firstThumb(p);
+    const el=document.createElement("div"); el.className="pcard";
+    el.innerHTML=`
+      <div class="ord">
+        <button data-up ${i===0?"disabled":""}>▲</button>
+        <button data-down ${i===projects.length-1?"disabled":""}>▼</button>
+      </div>
+      ${thumb?`<img class="thumb" src="${thumb}">`:`<div class="thumb"></div>`}
+      <div class="pinfo">
+        <div class="pname">${esc(p.name||"(이름 없음)")}</div>
+        <div class="pmeta"><span class="pcat">${esc(p.category||"-")}</span>${esc(p.year||"")}${p.location?" · "+esc(p.location):""} · 슬라이드 ${p.slides?.length||0}장</div>
+      </div>
+      <div class="pacts">
+        <button class="btn btn-sm" data-edit><span class="label-txt">수정</span></button>
+        <button class="btn btn-sm btn-danger" data-del>삭제</button>
+      </div>`;
+    el.querySelector("[data-up]").onclick=()=>move(i,-1);
+    el.querySelector("[data-down]").onclick=()=>move(i,1);
+    el.querySelector("[data-edit]").onclick=()=>openEditor(p);
+    el.querySelector("[data-del]").onclick=()=>delProject(p);
+    list.appendChild(el);
+  });
+}
+function firstThumb(p){
+  const s=(p.slides||[])[0]; if(!s) return null;
+  return s.type==="ba" ? s.after : s.url;
+}
+async function move(i,dir){
+  const j=i+dir; if(j<0||j>=projects.length) return;
+  [projects[i],projects[j]]=[projects[j],projects[i]];
+  renderProjects();
+  await updateDoc(doc(db,"projects",projects[i].id),{order:i});
+  await updateDoc(doc(db,"projects",projects[j].id),{order:j});
+}
+async function delProject(p){
+  if(!confirm(`"${p.name}" 프로젝트를 삭제할까요? 되돌릴 수 없어요.`)) return;
+  await deleteDoc(doc(db,"projects",p.id));
+  toast("삭제했어요"); await loadProjects();
+}
+
+/* ---------- 편집기 ---------- */
+let draft=null; // 편집 중 프로젝트
+$("#newProjectBtn").addEventListener("click", ()=>openEditor(null));
+
+function openEditor(p){
+  draft = p ? JSON.parse(JSON.stringify(p)) : {name:"",year:"",category:CATEGORIES[0],location:"",slides:[],order:projects.length};
+  const m=$("#editorMount");
+  m.innerHTML=`
+    <div class="editor">
+      <h3>${p?"프로젝트 수정":"새 프로젝트"}</h3>
+      <div class="field"><label>프로젝트 이름</label><input id="e_name" value="${esc(draft.name)}" placeholder="예: 울릉공항"></div>
+      <div class="grid2">
+        <div class="field"><label>연도</label><input id="e_year" value="${esc(draft.year)}" placeholder="2019"></div>
+        <div class="field"><label>카테고리</label><select id="e_cat">${CATEGORIES.map(c=>`<option ${c===draft.category?"selected":""}>${c}</option>`).join("")}</select></div>
+      </div>
+      <div class="field"><label>위치 / 분류 (캡션 끝에 붙어요)</label><input id="e_loc" value="${esc(draft.location)}" placeholder="예: 경북 경주 / 기술제안 T/K"><div class="hint">사이트엔 "연도 · 카테고리 · 위치" 형태로 표시돼요.</div></div>
+
+      <div class="slides-head">
+        <span class="lbl">사진 (${draft.slides.length}장)</span>
+        <div class="add-menu">
+          <button class="btn btn-sm" id="addSingle">+ 일반 사진</button>
+          <button class="btn btn-sm" id="addBA">+ 전후 비교</button>
+        </div>
+      </div>
+      <div class="uploading" id="uploading"><div class="spin"></div><span id="upMsg">업로드 중…</span></div>
+      <div class="slides" id="slideList"></div>
+
+      <input type="file" id="fileSingle" accept="image/*" multiple class="hidden">
+      <input type="file" id="fileBefore" accept="image/*" class="hidden">
+      <input type="file" id="fileAfter" accept="image/*" class="hidden">
+
+      <div class="editor-acts">
+        <button class="btn btn-danger" id="cancelEdit">취소</button>
+        <div class="spacer"></div>
+        <button class="btn btn-primary" id="saveProject">저장</button>
+      </div>
+    </div>`;
+  renderSlides();
+  $("#cancelEdit").onclick=()=>{ m.innerHTML=""; draft=null; };
+  $("#saveProject").onclick=saveProject;
+  $("#addSingle").onclick=()=>$("#fileSingle").click();
+  $("#addBA").onclick=startBA;
+  $("#fileSingle").onchange=onSingleFiles;
+  m.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function renderSlides(){
+  const list=$("#slideList");
+  if(!draft.slides.length){ list.innerHTML=`<div class="hint" style="padding:8px 0">아직 사진이 없어요. 위 버튼으로 추가하세요.</div>`; return; }
+  list.innerHTML="";
+  draft.slides.forEach((s,i)=>{
+    const el=document.createElement("div"); el.className="slide";
+    const visual = s.type==="ba"
+      ? `<div class="sba"><img src="${s.before}"><img src="${s.after}"></div><span class="stype">전후</span>`
+      : `<img class="sthumb" src="${s.url}"><span class="stype single">일반</span>`;
+    el.innerHTML=`${visual}
+      <span class="slabel">${esc(s.label || (s.type==="ba"?"전후 비교":"사진")) }</span>
+      <div class="sacts">
+        <button data-up ${i===0?"disabled":""}>▲</button>
+        <button data-down ${i===draft.slides.length-1?"disabled":""}>▼</button>
+        <button data-edit>✎</button>
+        <button data-del>✕</button>
+      </div>`;
+    el.querySelector("[data-up]").onclick=()=>{ if(i>0){[draft.slides[i-1],draft.slides[i]]=[draft.slides[i],draft.slides[i-1]];renderSlides();} };
+    el.querySelector("[data-down]").onclick=()=>{ if(i<draft.slides.length-1){[draft.slides[i+1],draft.slides[i]]=[draft.slides[i],draft.slides[i+1]];renderSlides();} };
+    el.querySelector("[data-edit]").onclick=()=>{ const l=prompt("라벨 (전후 비교 지점 이름 등)", s.label||""); if(l!==null){ s.label=l; renderSlides(); } };
+    el.querySelector("[data-del]").onclick=()=>{ draft.slides.splice(i,1); renderSlides(); updateSlideCount(); };
+    list.appendChild(el);
+  });
+  updateSlideCount();
+}
+function updateSlideCount(){ const h=document.querySelector(".slides-head .lbl"); if(h) h.textContent=`사진 (${draft.slides.length}장)`; }
+
+/* 일반 사진 업로드 (여러 장) */
+async function onSingleFiles(e){
+  const files=[...e.target.files]; e.target.value="";
+  if(!files.length) return;
+  showUploading(`사진 ${files.length}장 올리는 중…`);
+  for(const f of files){
+    try{ const url=await uploadImage(f); draft.slides.push({type:"single",url}); }
+    catch(err){ toast("업로드 실패: "+err.message); }
+  }
+  hideUploading(); renderSlides();
+}
+/* 전후 비교: before -> after 순서로 선택 */
+let baTemp=null;
+function startBA(){
+  baTemp={};
+  $("#fileBefore").onchange=async e=>{
+    const f=e.target.files[0]; e.target.value=""; if(!f){baTemp=null;return;}
+    showUploading("현황(before) 올리는 중…");
+    try{ baTemp.before=await uploadImage(f); hideUploading(); $("#fileAfter").click(); }
+    catch(err){ hideUploading(); toast("업로드 실패: "+err.message); baTemp=null; }
+  };
+  $("#fileAfter").onchange=async e=>{
+    const f=e.target.files[0]; e.target.value=""; if(!f){baTemp=null;return;}
+    showUploading("제안(after) 올리는 중…");
+    try{
+      baTemp.after=await uploadImage(f); hideUploading();
+      const label=prompt("이 전후 비교 지점의 이름 (예: IC 진입부)","")||"";
+      draft.slides.push({type:"ba",before:baTemp.before,after:baTemp.after,label});
+      baTemp=null; renderSlides();
+    }catch(err){ hideUploading(); toast("업로드 실패: "+err.message); baTemp=null; }
+  };
+  toast("먼저 '현황' 사진을 고르세요");
+  $("#fileBefore").click();
+}
+
+async function saveProject(){
+  draft.name=$("#e_name").value.trim();
+  draft.year=$("#e_year").value.trim();
+  draft.category=$("#e_cat").value;
+  draft.location=$("#e_loc").value.trim();
+  if(!draft.name){ toast("프로젝트 이름을 입력하세요"); return; }
+  const data={order:draft.order??projects.length, name:draft.name, year:draft.year, category:draft.category, location:draft.location, slides:draft.slides, updatedAt:serverTimestamp()};
+  try{
+    if(draft.id) await updateDoc(doc(db,"projects",draft.id), data);
+    else await addDoc(collection(db,"projects"), data);
+    $("#editorMount").innerHTML=""; draft=null;
+    toast("저장했어요"); await loadProjects();
+  }catch(err){ toast("저장 실패: "+err.message); }
+}
+
+/* ---------- 회사정보 ---------- */
+$("#saveCompanyBtn").addEventListener("click", async ()=>{
+  const data={
+    name:$("#c_name").value.trim(), ceo:$("#c_ceo").value.trim(),
+    bizno:$("#c_bizno").value.trim(), tel:$("#c_tel").value.trim(),
+    addr:$("#c_addr").value.trim(), email:$("#c_email").value.trim(),
+    updatedAt:serverTimestamp()
+  };
+  try{ await setDoc(doc(db,"settings","company"), data); toast("회사 정보를 저장했어요"); }
+  catch(err){ toast("저장 실패: "+err.message); }
+});
+
+/* ---------- 이미지 압축 + 업로드 ---------- */
+async function compress(file, maxDim=2048, quality=0.88){
+  const bitmap = await createImageBitmap(file);
+  let {width,height}=bitmap;
+  if(Math.max(width,height)>maxDim){ const r=maxDim/Math.max(width,height); width=Math.round(width*r); height=Math.round(height*r); }
+  const c=document.createElement("canvas"); c.width=width; c.height=height;
+  c.getContext("2d").drawImage(bitmap,0,0,width,height);
+  bitmap.close?.();
+  return await new Promise(res=>c.toBlob(res,"image/jpeg",quality));
+}
+async function uploadImage(file){
+  const blob=await compress(file);
+  const path=`projects/${Date.now()}_${Math.random().toString(36).slice(2,8)}.jpg`;
+  const r=sRef(storage,path);
+  await uploadBytes(r,blob,{contentType:"image/jpeg"});
+  return await getDownloadURL(r);
+}
+
+/* ---------- 유틸 ---------- */
+function show(el){el.classList.remove("hidden");} function hide(el){el.classList.add("hidden");}
+function showUploading(msg){ const u=$("#uploading"); if(u){$("#upMsg").textContent=msg||"업로드 중…";u.classList.add("on");} }
+function hideUploading(){ const u=$("#uploading"); if(u)u.classList.remove("on"); }
+function esc(s){ return (s??"").toString().replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m])); }
+let toastT;
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("on"),2600); }
+</script>
+</body>
+</html>
