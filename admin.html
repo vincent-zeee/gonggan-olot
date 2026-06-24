@@ -111,6 +111,13 @@
   @keyframes sp{to{transform:rotate(360deg)}}
 
   .empty{text-align:center;padding:50px 20px;color:var(--muted);font-size:.92rem}
+  .catimg-row{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .catimg-row:last-child{border-bottom:none}
+  .catimg-thumb{width:84px;height:52px;border-radius:6px;background:var(--mist);overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center}
+  .catimg-thumb img{width:100%;height:100%;object-fit:cover}
+  .catimg-thumb span{font-size:.74rem;color:var(--muted)}
+  .catimg-name{flex:1;font-family:var(--serif);font-weight:500;font-size:1rem;color:var(--ink)}
+  .catimg-acts{display:flex;gap:6px;flex:none}
   .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:12px 22px;border-radius:9px;font-size:.88rem;opacity:0;transition:.3s;z-index:80;pointer-events:none}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
   .hidden{display:none!important}
@@ -178,6 +185,12 @@
           <button class="btn btn-primary" id="saveCompanyBtn">회사 정보 저장</button>
         </div>
       </div>
+
+      <div class="row-head" style="margin-top:38px"><h2>카테고리 대표 이미지</h2></div>
+      <div class="editor">
+        <p class="hint" style="margin-bottom:16px">사이트 카테고리 페이지의 5개 카드 사진이에요. 비워두면 그 카테고리에 속한 사진 중 <b>랜덤</b>으로 보여줘요(새로고침마다 바뀜). 특정 사진으로 고정하려면 지정하세요.</p>
+        <div id="catImageList"></div>
+      </div>
     </section>
   </div>
 </div>
@@ -242,7 +255,7 @@ document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
 }));
 
 /* ---------- 데이터 로드 ---------- */
-async function loadAll(){ await loadProjects(); await loadCompany(); }
+async function loadAll(){ await loadProjects(); await loadCompany(); await loadCatImages(); }
 
 async function loadProjects(){
   const snap = await getDocs(query(collection(db,"projects"), orderBy("order")));
@@ -456,6 +469,50 @@ $("#saveCompanyBtn").addEventListener("click", async ()=>{
   try{ await setDoc(doc(db,"settings","company"), data); toast("회사 정보를 저장했어요"); }
   catch(err){ toast("저장 실패: "+err.message); }
 });
+
+/* ---------- 카테고리 대표 이미지 ---------- */
+let catImages={};
+async function loadCatImages(){
+  try{ const d=await getDoc(doc(db,"settings","categories")); catImages = d.exists()?d.data():{}; }
+  catch(e){ catImages={}; }
+  renderCatImages();
+}
+function renderCatImages(){
+  const box=$("#catImageList"); if(!box) return; box.innerHTML="";
+  CATEGORIES.forEach(cat=>{
+    const url=catImages[cat];
+    const row=document.createElement("div"); row.className="catimg-row";
+    row.innerHTML=`
+      <div class="catimg-thumb">${url?`<img src="${url}">`:`<span>랜덤</span>`}</div>
+      <span class="catimg-name">${cat}</span>
+      <div class="catimg-acts">
+        <button class="btn btn-sm" data-up>${url?"사진 변경":"사진 지정"}</button>
+        ${url?`<button class="btn btn-sm btn-danger" data-clear>랜덤으로</button>`:""}
+      </div>`;
+    row.querySelector("[data-up]").onclick=()=>pickCatImage(cat);
+    row.querySelector("[data-clear]")?.addEventListener("click",()=>clearCatImage(cat));
+    box.appendChild(row);
+  });
+}
+function pickCatImage(cat){
+  const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*";
+  inp.onchange=async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    toast(cat+" 사진 올리는 중…");
+    try{
+      const url=await uploadImage(f);
+      catImages[cat]=url;
+      await setDoc(doc(db,"settings","categories"), catImages);
+      renderCatImages(); toast(cat+" 카드 사진을 지정했어요");
+    }catch(err){ toast("실패: "+err.message); }
+  };
+  inp.click();
+}
+async function clearCatImage(cat){
+  delete catImages[cat];
+  try{ await setDoc(doc(db,"settings","categories"), catImages); renderCatImages(); toast(cat+" 카드를 랜덤으로 바꿨어요"); }
+  catch(err){ toast("실패: "+err.message); }
+}
 
 /* ---------- 기존 데이터 가져오기 (seed) ---------- */
 const SEED_PROJECTS = [

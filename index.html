@@ -509,10 +509,14 @@
   }
 
   /* ===== 카테고리 카드 + 소개 이미지 ===== */
-  function renderCategoryImages(projects){
+  function renderCategoryImages(projects, catImages={}){
     document.querySelectorAll('.cat[data-go]').forEach(card=>{
-      const p=projects.find(x=>x.category===card.dataset.go);
-      if(p){ const img=card.querySelector('img'); if(img) img.src=firstImg(p); }
+      const cat=card.dataset.go;
+      const img=card.querySelector('img'); if(!img) return;
+      if(catImages[cat]){ img.src=catImages[cat]; return; }     // 직접 지정한 사진 우선
+      const pool=[];                                            // 없으면 해당 카테고리 사진 중 랜덤
+      projects.filter(p=>p.category===cat).forEach(p=>(p.slides||[]).forEach(s=>pool.push(s.type==='ba'?s.after:s.url)));
+      if(pool.length) img.src=pool[Math.floor(Math.random()*pool.length)];
     });
     const box=document.getElementById('aboutSlides');
     if(box){
@@ -541,7 +545,9 @@
     try{
       const snap=await getDocs(query(collection(db,'projects'),orderBy('order')));
       const projects=snap.docs.map(d=>d.data());
-      if(projects.length){ renderProjects(projects); renderCategoryImages(projects); }
+      let catImages={};
+      try{ const cd=await getDoc(doc(db,'settings','categories')); if(cd.exists()) catImages=cd.data(); }catch(e){}
+      if(projects.length){ renderProjects(projects); renderCategoryImages(projects, catImages); }
       const cdoc=await getDoc(doc(db,'settings','company'));
       if(cdoc.exists()) renderCompany(cdoc.data());
     }catch(err){ console.error('데이터 로드 실패:', err); }
