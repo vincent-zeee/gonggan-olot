@@ -118,12 +118,17 @@
   .pr-desc{font-family:var(--sans);font-weight:300;font-size:.95rem;line-height:1.75;color:var(--ink-soft);max-width:52em;margin:0 auto;text-align:center}
 
   /* 소개 — 좌우 바닥 정렬, 이미지 하단 크롭, 한 화면 */
-  .about-stage{height:calc(100vh - var(--hd));display:flex;flex-direction:column;justify-content:center;padding:30px 0;overflow:hidden}
-  .about{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:stretch;flex:1;min-height:0}
-  .about-left{display:flex;flex-direction:column;min-height:0}
+  .about-stage{min-height:calc(100vh - var(--hd));display:flex;flex-direction:column;justify-content:center;padding:40px 0;overflow:visible}
+  .about{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
+  .about-left{display:flex;flex-direction:column}
   .about .statement{font-family:var(--serif);font-weight:400;font-size:clamp(1.25rem,2.4vw,1.9rem);line-height:1.7;letter-spacing:-.005em;color:var(--dim);margin-bottom:26px;flex:0 0 auto}
   .about .statement em{font-style:normal;font-weight:600;color:var(--key)}
-  .about-img{position:relative;flex:1 1 auto;min-height:0;overflow:hidden;background:var(--mist)}
+  .about-img{position:relative;aspect-ratio:3/2;width:100%;overflow:hidden;background:var(--mist)}
+  .site-foot{border-top:1px solid var(--line);margin-top:36px;padding:48px 24px 8px;display:flex;flex-direction:column;align-items:center;gap:13px;text-align:center}
+  .site-foot .sf-brand{font-family:var(--serif);font-weight:500;font-size:1.34rem;letter-spacing:.05em;color:var(--ink)}
+  .site-foot .sf-brand span{color:var(--sage-deep)}
+  .site-foot .sf-info{font-family:var(--sans);font-weight:300;font-size:.84rem;letter-spacing:.05em;color:var(--ink-soft)}
+  .site-foot .sf-copy{font-family:var(--sans);font-weight:300;font-size:.72rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
   .about-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;opacity:0;transition:opacity 1.3s ease}
   .about-img img.on{opacity:1}
   .about-right{display:flex;flex-direction:column;min-height:0}
@@ -135,6 +140,8 @@
   .services .ko{font-family:var(--serif);font-weight:400;font-size:1.02rem;color:var(--ink);transition:color .3s}
   .services .en{font-family:var(--sans);font-weight:300;font-size:.74rem;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
   .dl{align-self:flex-start;margin-top:22px;display:inline-flex;align-items:center;gap:9px;font-family:var(--sans);font-weight:300;font-size:.84rem;letter-spacing:.06em;color:var(--ink);text-decoration:none;padding:11px 22px;border:1px solid var(--line);transition:.3s}
+  .docs{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+  .docs .dl{margin-top:0}
   .dl:hover{border-color:var(--ink);background:var(--ink);color:var(--paper)}
 
   /* 연락처 */
@@ -236,7 +243,7 @@
         <span class="hero-enter sans">프로젝트 보기 <span class="ln"></span></span>
       </div>
       <div class="hero-foot">
-        <span>주식회사 공간오롯 · 사업자등록번호 170-81-00711</span>
+        <span>주식회사 공간오롯 · 산업디자인전문회사 · 전문분야 환경디자인</span>
         <span>© 2026 gonggan;olot</span>
       </div>
     </div>
@@ -315,11 +322,19 @@
             <li data-go="조경"><span class="ko">조경설계</span><span class="en">Landscape Design</span></li>
             <li data-go="도시"><span class="ko">도시·단지계획</span><span class="en">Urban / District</span></li>
           </ul>
-          <!-- 사업자등록증 파일을 같은 폴더에 business-license.pdf 로 넣으면 다운로드됩니다 -->
-          <a class="dl" href="business-license.pdf" download>사업자등록증 다운로드 ↓</a>
+          <!-- 증명서 PDF를 같은 폴더에 business-license.pdf / design-firm-cert.pdf 로 넣으면 다운로드됩니다 -->
+          <div class="docs">
+            <a class="dl" href="business-license.pdf" download>사업자등록증 ↓</a>
+            <a class="dl" href="design-firm-cert.pdf" download>환경디자인 전문회사 신고확인증 ↓</a>
+          </div>
         </div>
       </div>
     </div>
+    <footer class="site-foot">
+      <div class="sf-brand">공간<span>;</span>오롯</div>
+      <div class="sf-info">주식회사 공간오롯 · 산업디자인전문회사 · 전문분야 환경디자인</div>
+      <div class="sf-copy">© 2026 gonggan;olot. All rights reserved.</div>
+    </footer>
   </section>
 
   <!-- 연락처 -->
